@@ -1,0 +1,252 @@
+<?php
+
+/**
+ * @file
+ * Module definition file for mission control.
+ */
+
+/**
+ * Implements hook_boot().
+ */
+function mission_control_boot() {
+  @include_once DRUPAL_ROOT . '/includes/database/log.inc';
+  Database::startLog('mission_control_queries');
+}
+
+/**
+ * Implements hook_menu().
+ */
+function mission_control_menu() {
+  $items = array();
+
+  $items['admin/config/development/mission_control'] = array(
+    'title' => 'Mission Control settings',
+    'access arguments' => array('access mission control'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('mission_control_settings'),
+    'file path' => drupal_get_path('module', 'mission_control') . '/admin',
+    'file' => 'mission_control.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function mission_control_permission() {
+  return array(
+    'access mission control' => array(
+      'title' => t('Access mission control'),
+      'description' => t('Display the mission control bar on the page.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function mission_control_theme($existing, $type, $theme, $path) {
+  return array(
+    'mission_control_container' => array(
+      'render element' => 'element',
+      'template' => 'mission-control-container',
+      'path' => drupal_get_path('module', 'mission_control') . '/theme/templates',
+    ),
+  );
+}
+
+/**
+ * Implements hook_page_alter().
+ */
+function mission_control_page_alter(&$page) {
+  global $_mission_control_queries;
+  $_mission_control_queries = Database::getLog('mission_control_queries');
+
+  if (path_is_admin(current_path()) || !user_access('access mission control')) {
+    return FALSE;
+  }
+
+  $page['page_bottom']['mission_control'] = array(
+    '#theme' => 'mission_control_container',
+    // Feature flags.
+    'enable_render_time' => variable_get('enable_render_time'),
+    'enable_git_data' => variable_get('enable_git_data'),
+    'full_git_path' => variable_get('git_path'),
+    'enable_caching_output' => variable_get('enable_caching_output'),
+    'enable_sql_output' => variable_get('enable_sql_output'),
+    'enable_directory_sizes' => variable_get('enable_directory_sizes'),
+    'enable_background_task' => variable_get('enable_background_task'),
+    // Stats.
+    'render_time' => mission_control_get_page_render_time(),
+    'current_git_branch' => mission_control_get_current_branch(variable_get('git_path')),
+    'git_head_sha' => mission_control_get_head_sha(variable_get('git_path')),
+    'hostname' => mission_control_get_hostname(),
+    'sql_call_count' => mission_control_get_query_count(),
+    'sql_call_time' => mission_control_get_query_call_time(),
+    'css_directory_size' => mission_control_get_directory_size('css'),
+    'js_directory_size' => mission_control_get_directory_size('js'),
+    '#attached' => array(
+      'css' => array(
+        drupal_get_path('module', 'mission_control') . '/theme/css/mission_control.css',
+      ),
+      'js' => array(
+        drupal_get_path('module', 'mission_control') . '/theme/js/mission_control.js',
+      ),
+    ),
+  );
+}
+
+/**
+ * Get the current page render time.
+ *
+ * @return int
+ *   The page render time rounded to the nearest whole integer.
+ */
+function mission_control_get_page_render_time() {
+  return round(timer_read('page'));
+}
+
+/**
+ * Get the current git branch.
+ *
+ * @return string
+ *   Name of the branch it is currently in use.
+ */
+function mission_control_get_current_branch($path) {
+  return exec("cd $path; git rev-parse --abbrev-ref HEAD");
+}
+
+/**
+ * Get the current HEAD SHA.
+ *
+ * @return string
+ *   String of the HEAD SHA trimmmed to 7 characters.
+ */
+function mission_control_get_head_sha($path) {
+  return substr(exec("cd $path; git rev-parse HEAD"), 0, 7);
+}
+
+/**
+ * Get the hostname of the machine the code is running on.
+ *
+ * @param bool $use_fqdn
+ *   Whether to trim the current hostname to the first period.
+ *
+ * @return string
+ *   The name of the current machine. If $use_fqdn is FALSE, the hostname will
+ *   be trimmed to the first period. Example, web-123.subdomain.com will become
+ *   web-123.
+ */
+function mission_control_get_hostname($use_fqdn = FALSE) {
+  if ($use_fqdn) {
+    return gethostname();
+  }
+  else {
+    return strstr(gethostname(), '.', TRUE);
+  }
+}
+
+/**
+ * Get a count of all queries being run on load.
+ *
+ * @return int
+ *   Number of queries being run on the load.
+ */
+function mission_control_get_query_count() {
+  global $_mission_control_queries;
+  return count($_mission_control_queries);
+}
+
+/**
+ * Get the total query call time for all queries.
+ *
+ * @return int
+ *   The call time for all queries for a page load.
+ */
+function mission_control_get_query_call_time() {
+  global $_mission_control_queries;
+  $total_call_time = 0;
+
+  // Get each query call time and add it into the total time.
+  foreach ($_mission_control_queries as $query) {
+    $total_call_time += round($query['time'], 5);
+  }
+
+  return round($total_call_time * 1000, 2);
+}
+
+/**
+ * Get the size of the assets directory.
+ *
+ * @param string $type
+ *   The type of directory we are wanting the size of. Defaults to 'css' but
+ *   'js' is also available.
+ *
+ * @return string
+ *   The directory size and the sizing suffix. Example, 120kb.
+ */
+function mission_control_get_directory_size($type = 'css') {
+  $directory = DRUPAL_ROOT . '/' . variable_get('file_public_path', conf_path() . '/files') . '/' . $type;
+  $size = 0;
+
+  // If the directory doesn't exist just return n/a.
+  if (!is_dir($directory)) {
+    return 'n/a';
+  }
+
+  // Iterate over each file in the directory.
+  foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory)) as $file) {
+    $filetypes = array("$type");
+    $filetype = pathinfo($file, PATHINFO_EXTENSION);
+
+    // Only add the size of files that are of the same type as we are after.
+    if (in_array(strtolower($filetype), $filetypes)) {
+      $size += $file->getSize();
+    }
+  }
+
+  $base = log($size) / log(1024);
+  $suffixes = array('', 'kb', 'mb');
+
+  // If the cached files are not found or the directory is empty, the log() eval
+  // will return a negative integer. If that happens we just return 0kb instead.
+  if ($base < 0) {
+    return '0kb';
+  }
+
+  return round(pow(1024, $base - floor($base)), 0) . $suffixes[floor($base)];
+}
+
+/**
+ * A helper function to add the #states property to fields.
+ *
+ * @param string $parent
+ *   The name of the parent item that this depends on. If it the parent
+ *   within a tree, use the name that the form generates, eg path[to][parent]
+ * @param string $type
+ *   The type of field element to apply.
+ * @param string $value
+ *   The value to check for. Only used on radio buttons.
+ *
+ * @return array
+ *   The array to add to the '#states' property of a form field to make
+ *   it depend on the parent field.
+ */
+function mission_control_depends_on($parent, $type = 'checkbox', $value = '') {
+  if ($type == 'checkbox') {
+    return array(
+      'visible' => array(
+        ':input[name="' . $parent . '"]' => array('checked' => TRUE),
+      ),
+    );
+  }
+
+  if ($type == 'radio') {
+    return array(
+      'visible' => array(
+        ':input[name="' . $parent . '"]' => array('value' => $value),
+      ),
+    );
+  }
+}

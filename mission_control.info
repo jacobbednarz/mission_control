@@ -1,0 +1,6 @@
+name = "Mission Control"
+description = "An inline dashboard of your site statistics and performance information."
+package = "Development"
+core = "7.x"
+version = "7.x-1.0"
+configure = admin/config/development/mission_control
