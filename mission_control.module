@@ -70,8 +70,10 @@ function mission_control_page_alter(&$page) {
   $page['page_bottom']['mission_control'] = array(
     '#theme' => 'mission_control_container',
     // Feature flags.
-    'enable_render_time' => variable_get('enable_render_time'),
     'enable_git_data' => variable_get('enable_git_data'),
+    'show_hostname' => variable_get('show_hostname'),
+    'enable_render_time' => variable_get('enable_render_time'),
+    'use_fqdn_hostname' => variable_get('use_fqdn_hostname'),
     'full_git_path' => variable_get('git_path'),
     'enable_caching_output' => variable_get('enable_caching_output'),
     'enable_sql_output' => variable_get('enable_sql_output'),
@@ -80,10 +82,12 @@ function mission_control_page_alter(&$page) {
     'enable_batch_count' => variable_get('enable_batch_count'),
     'enable_queue_count' => variable_get('enable_queue_count'),
     // Stats.
-    'render_time' => mission_control_get_page_render_time(),
     'current_git_branch' => mission_control_get_current_branch(variable_get('git_path')),
     'git_head_sha' => mission_control_get_head_sha(variable_get('git_path')),
-    'hostname' => mission_control_get_hostname(),
+    'hostname' => (variable_get('use_fqdn_hostname')) ? mission_control_get_hostname(TRUE) : mission_control_get_hostname(),
+    'render_time' => mission_control_get_page_render_time(),
+    'sql_cache_time' => mission_control_get_database_cache_time(),
+    'sql_cache_count' => mission_control_get_database_cache_count(),
     'sql_call_count' => mission_control_get_query_count(),
     'sql_call_time' => mission_control_get_query_call_time(),
     'css_directory_size' => mission_control_get_directory_size('css'),
@@ -250,6 +254,48 @@ function mission_control_get_active_queue_count() {
     ->fetchAll();
 
   return count($queue_count);
+}
+
+/**
+ * Get the time spent on SQL being retrieved from the database.
+ *
+ * @return int
+ *   The time used on fetching cache from the database.
+ */
+function mission_control_get_database_cache_time() {
+  global $_mission_control_queries;
+  $cache_query_time = 0;
+
+  // Go over each query that is attached to the DrupalDatabaseCache class and
+  // add it to the call time.
+  foreach($_mission_control_queries as $query) {
+    if ($query['caller']['class'] == 'DrupalDatabaseCache') {
+      $cache_query_time += round($query['time'], 5);
+    }
+  }
+
+  return round($cache_query_time * 1000, 2);
+}
+
+/**
+ * Get a count of the SQL queries that were serving from cache.
+ *
+ * @return int
+ *   The number of queries that hit the database cache.
+ */
+function mission_control_get_database_cache_count() {
+  global $_mission_control_queries;
+  $cache_query_count = 0;
+
+  // Loop over every query but only pull out the ones that are called via the
+  // DrupalDatabaseCache. This means we are attempting to serve from the cache.
+  foreach($_mission_control_queries as $query) {
+    if ($query['caller']['class'] == 'DrupalDatabaseCache') {
+      $cache_query_count++;
+    }
+  }
+
+  return $cache_query_count;
 }
 
 /**
