@@ -6,10 +6,15 @@
         <?php print render($element['current_git_branch']); ?>
         @
         <?php print render($element['git_head_sha']); ?></span>
-        <span class="mission-control-hostname">
-          <?php print render($element['hostname']); ?>
-        </span>
     </div> <!-- /#branch-details -->
+  <?php endif; ?>
+
+  <?php if ($element['show_hostname']) : ?>
+    <div id="mission-control-hostname" class="pull-left">
+      <span class="mission-control-hostname">
+        <?php print render($element['hostname']); ?>
+      </span>
+    </div>
   <?php endif; ?>
 
   <div id="mission-control-stats" class="pull-right">
@@ -21,7 +26,11 @@
     <?php endif; ?>
 
     <?php if ($element['enable_caching_output']) : ?>
-      <span class="mission-control-topic">33ms / 34</span>
+      <span class="mission-control-topic">
+        <?php print render($element['sql_cache_time']); ?>ms
+        /
+        <?php print render($element['sql_cache_count']); ?>
+      </span>
       <span class="mission-control-unit">cache</span>
     <?php endif; ?>
 
