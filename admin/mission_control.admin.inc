@@ -17,60 +17,93 @@ function mission_control_settings() {
     '#type' => 'vertical_tabs',
   );
 
-  $form['display_options'] = array(
+  $form['git_information'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Display options'),
+    '#title' => t('Git integration'),
+    '#group' => 'type',
+  );
+  $form['server_information'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Server details'),
+    '#group' => 'type',
+  );
+  $form['page_render'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Page render'),
+    '#group' => 'type',
+  );
+  $form['database'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Database and SQL'),
+    '#group' => 'type',
+  );
+  $form['assets'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Assets'),
+    '#group' => 'type',
+  );
+  $form['background_tasks'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Background tasks'),
     '#group' => 'type',
   );
 
-  $form['display_options']['enable_git_data'] = array(
+  $form['git_information']['enable_git_data'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable displaying of git information'),
     '#default_value' => variable_get('enable_git_data', 0),
   );
-  $form['display_options']['git_path'] = array(
+  $form['git_information']['git_path'] = array(
     '#type' => 'textfield',
     '#size' => 30,
     '#title' => t('Full path to git repository'),
-    '#description' => t('Git repository must be accessible via a local path.'),
+    '#description' => t('Git repository must be accessible via a local path'),
     '#maxlength' => 255,
     '#required' => FALSE,
     '#default_value' => variable_get('git_path', ''),
     '#states' => mission_control_depends_on('enable_git_data'),
   );
-  $form['display_options']['enable_render_time'] = array(
+  $form['server_information']['show_hostname'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Enable displaying render time'),
+    '#title' => t('Display hostname of the current server'),
+    '#default_value' => variable_get('show_hostname', 0),
+  );
+  $form['server_information']['use_fqdn_hostname'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Use FQDN for server hostname'),
+    '#default_value' => variable_get('use_fqdn_hostname', 0),
+    '#states' => mission_control_depends_on('show_hostname'),
+    '#description' => t('Instead of using just the sub domain of a host, you can use the full hostname'),
+  );
+  $form['page_render']['enable_render_time'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show page render time'),
     '#default_value' => variable_get('enable_render_time', 0),
   );
-  $form['display_options']['enable_caching_output'] = array(
+  $form['database']['enable_caching_output'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Enable displaying of cache calls'),
+    '#title' => t('Display statistics for objects served from the database cache'),
     '#default_value' => variable_get('enable_caching_output', 0),
   );
-  $form['display_options']['enable_sql_output'] = array(
+  $form['database']['enable_sql_output'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Enable displaying of SQL calls'),
+    '#title' => t('Display information around all SQL calls being executed'),
     '#default_value' => variable_get('enable_sql_output', 0),
   );
-  $form['display_options']['enable_background_task'] = array(
-    '#type' => 'checkbox',
-    '#title' => t('Enable displaying of background tasks'),
-    '#default_value' => variable_get('enable_background_task', 0),
-  );
-  $form['display_options']['enable_directory_sizes'] = array(
+  $form['assets']['enable_directory_sizes'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable displaying of directory sizes for cached CSS and JS files'),
+    '#description' => t('Note: If you do not have aggregration enabled, it will just display N/A'),
     '#default_value' => variable_get('enable_directory_sizes', 0),
   );
-  $form['display_options']['enable_batch_count'] = array(
+  $form['background_tasks']['enable_batch_count'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Enable displaying a count of active batch processes'),
+    '#title' => t('Display a count of active batch processes'),
     '#default_value' => variable_get('enable_batch_count', 0),
   );
-  $form['display_options']['enable_queue_count'] = array(
+  $form['background_tasks']['enable_queue_count'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Enable displaying a count of active queues'),
+    '#title' => t('Show a count of active queues'),
     '#default_value' => variable_get('enable_queue_count', 0),
   );
 
