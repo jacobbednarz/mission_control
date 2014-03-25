@@ -13,5 +13,6 @@ modules do.
 - Page render times. (4)
 - Number of cache calls from multiple backends and total call time. (5)
 - Total SQL queries count for the page load and total call time. (6)
-- Number of background tasks running. (7)
-- Size of CSS and JS files being served to the end user. (8 + 9)
+- Number of batch processes currently running. (7)
+- Total count of running queues. (8)
+- Size of CSS and JS files being served to the end user. (9 + 10)

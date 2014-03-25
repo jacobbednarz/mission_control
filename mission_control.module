@@ -77,6 +77,8 @@ function mission_control_page_alter(&$page) {
     'enable_sql_output' => variable_get('enable_sql_output'),
     'enable_directory_sizes' => variable_get('enable_directory_sizes'),
     'enable_background_task' => variable_get('enable_background_task'),
+    'enable_batch_count' => variable_get('enable_batch_count'),
+    'enable_queue_count' => variable_get('enable_queue_count'),
     // Stats.
     'render_time' => mission_control_get_page_render_time(),
     'current_git_branch' => mission_control_get_current_branch(variable_get('git_path')),
@@ -86,6 +88,8 @@ function mission_control_page_alter(&$page) {
     'sql_call_time' => mission_control_get_query_call_time(),
     'css_directory_size' => mission_control_get_directory_size('css'),
     'js_directory_size' => mission_control_get_directory_size('js'),
+    'batch_count' => mission_control_get_active_batch_count(),
+    'queue_count' => mission_control_get_active_queue_count(),
     '#attached' => array(
       'css' => array(
         drupal_get_path('module', 'mission_control') . '/theme/css/mission_control.css',
@@ -216,6 +220,36 @@ function mission_control_get_directory_size($type = 'css') {
   }
 
   return round(pow(1024, $base - floor($base)), 0) . $suffixes[floor($base)];
+}
+
+/**
+ * Retrieve a count of the active batch processes.
+ *
+ * @return int
+ *   The number of batch processes currently running.
+ */
+function mission_control_get_active_batch_count() {
+  $batch_count = db_select('batch')
+    ->fields(NULL, array('bid'))
+    ->execute()
+    ->fetchAll();
+
+  return count($batch_count);
+}
+
+/**
+ * Retrieve a count of the available queues.
+ *
+ * @return int
+ *   The number of queues currently running.
+ */
+function mission_control_get_active_queue_count() {
+  $queue_count = db_select('queue')
+    ->fields(NULL, array('item_id'))
+    ->execute()
+    ->fetchAll();
+
+  return count($queue_count);
 }
 
 /**

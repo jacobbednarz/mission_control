@@ -63,6 +63,16 @@ function mission_control_settings() {
     '#title' => t('Enable displaying of directory sizes for cached CSS and JS files'),
     '#default_value' => variable_get('enable_directory_sizes', 0),
   );
+  $form['display_options']['enable_batch_count'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable displaying a count of active batch processes'),
+    '#default_value' => variable_get('enable_batch_count', 0),
+  );
+  $form['display_options']['enable_queue_count'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Enable displaying a count of active queues'),
+    '#default_value' => variable_get('enable_queue_count', 0),
+  );
 
   return system_settings_form($form);
 }

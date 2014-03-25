@@ -14,7 +14,6 @@
 
   <div id="mission-control-stats" class="pull-right">
     <?php if ($element['enable_render_time']) : ?>
-      <!-- page render time -->
       <span class="mission-control-topic">
         <?php print render($element['render_time']); ?>ms
       </span>
@@ -34,9 +33,18 @@
       <span class="mission-control-unit">sql</span>
     <?php endif; ?>
 
-    <?php if ($element['enable_background_task']) : ?>
-      <span class="mission-control-topic">8</span>
-      <span class="mission-control-unit">tasks</span>
+    <?php if ($element['enable_batch_count']) : ?>
+      <span class="mission-control-topic">
+        <?php print render($element['batch_count']) ;?>
+      </span>
+      <span class="mission-control-unit">batch tasks</span>
+    <?php endif; ?>
+
+    <?php if ($element['enable_queue_count']) : ?>
+      <span class="mission-control-topic">
+        <?php print render($element['queue_count']) ;?>
+      </span>
+      <span class="mission-control-unit">queues</span>
     <?php endif; ?>
 
     <?php if ($element['enable_directory_sizes']) : ?>
@@ -44,6 +52,7 @@
         <?php print render($element['css_directory_size']); ?>
       </span>
       <span class="mission-control-unit">css</span>
+
       <span class="mission-control-topic">
         <?php print render($element['js_directory_size']); ?>
       </span>
