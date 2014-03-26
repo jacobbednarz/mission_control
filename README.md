@@ -16,3 +16,25 @@ modules do.
 - Number of batch processes currently running. (7)
 - Total count of running queues. (8)
 - Size of CSS and JS files being served to the end user. (9 + 10)
+
+### Installation
+
+- Clone the repository into your respective modules directory (usually found at
+`sites/all/modules`).
+
+  ```bash
+  git clone https://github.com/jacobbednarz/mission_control.git
+  ```
+
+  Alternatively, just download the [latest](https://github.com/jacobbednarz/mission_control/archive/master.zip)
+  archive.
+
+- Navigate to `admin/modules`, find "Mission Control" and enable it.
+- To configure what you wish to display, navigate to `admin/config/development/mission_control`
+
+### Reporting bugs or feature requests
+
+If you find an issue or something that doesn't quite work as you think it
+should, open an [issue](https://github.com/jacobbednarz/mission_control/issues/new)
+with the bug tracker on GitHub - Bonus points if you submit a pull request
+which patches the problem!
