@@ -1,3 +1,8 @@
+/* Prevent the bar from covering parts of the actual page */
+body {
+  margin-bottom: 37px;
+}
+
 .pull-left { float: left; }
 .pull-right { float: right; }
 
@@ -61,6 +66,6 @@
 .mission-control-unit {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.5);
-  text-shadow: 0px 1px 1px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
   padding-right: 25px;
 }
