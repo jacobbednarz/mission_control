@@ -266,10 +266,18 @@ function mission_control_get_database_cache_time() {
   global $_mission_control_queries;
   $cache_query_time = 0;
 
-  // Go over each query that is attached to the DrupalDatabaseCache class and
-  // add it to the call time.
+  // All the cache backends we want to keep track of.
+  $cache_backends = array(
+    'DrupalDatabaseCache',
+    'MemCacheDrupal',
+    'RedisPredisCache',
+    'RedisPhpRedisCache',
+  );
+
+  // Go over each query that is attached to the cache class and add it to the
+  // call time.
   foreach($_mission_control_queries as $query) {
-    if ($query['caller']['class'] == 'DrupalDatabaseCache') {
+    if (in_array($query['caller']['class'], $cache_backends)) {
       $cache_query_time += round($query['time'], 5);
     }
   }
