@@ -63,6 +63,8 @@ function mission_control_page_alter(&$page) {
   global $_mission_control_queries;
   $_mission_control_queries = Database::getLog('mission_control_queries');
 
+  // Don't bother continuing if it is within the Drupal administration section
+  // or the user doesn't have the correct permissions.
   if (path_is_admin(current_path()) || !user_access('access mission control')) {
     return FALSE;
   }
@@ -112,6 +114,10 @@ function mission_control_page_alter(&$page) {
  *   The page render time rounded to the nearest whole integer.
  */
 function mission_control_get_page_render_time() {
+  if (!variable_get('enable_render_time')) {
+    return FALSE;
+  }
+
   return round(timer_read('page'));
 }
 
@@ -122,6 +128,10 @@ function mission_control_get_page_render_time() {
  *   Name of the branch it is currently in use.
  */
 function mission_control_get_current_branch($path) {
+  if (!variable_get('enable_git_data')) {
+    return FALSE;
+  }
+
   return exec("cd $path; git rev-parse --abbrev-ref HEAD");
 }
 
@@ -132,6 +142,10 @@ function mission_control_get_current_branch($path) {
  *   String of the HEAD SHA trimmmed to 7 characters.
  */
 function mission_control_get_head_sha($path) {
+  if (!variable_get('enable_git_data')) {
+    return FALSE;
+  }
+
   return substr(exec("cd $path; git rev-parse HEAD"), 0, 7);
 }
 
@@ -147,12 +161,11 @@ function mission_control_get_head_sha($path) {
  *   web-123.
  */
 function mission_control_get_hostname($use_fqdn = FALSE) {
-  if ($use_fqdn) {
-    return gethostname();
+  if (!variable_get('show_hostname')) {
+    return FALSE;
   }
-  else {
-    return strstr(gethostname(), '.', TRUE);
-  }
+
+  return ($use_fqdn) ? gethostname() : strstr(gethostname(), '.', TRUE);
 }
 
 /**
@@ -162,6 +175,10 @@ function mission_control_get_hostname($use_fqdn = FALSE) {
  *   Number of queries being run on the load.
  */
 function mission_control_get_query_count() {
+  if (!variable_get('enable_sql_output')) {
+    return FALSE;
+  }
+
   global $_mission_control_queries;
   return count($_mission_control_queries);
 }
@@ -173,6 +190,10 @@ function mission_control_get_query_count() {
  *   The call time for all queries for a page load.
  */
 function mission_control_get_query_call_time() {
+  if (!variable_get('enable_sql_output')) {
+    return FALSE;
+  }
+
   global $_mission_control_queries;
   $total_call_time = 0;
 
@@ -195,6 +216,10 @@ function mission_control_get_query_call_time() {
  *   The directory size and the sizing suffix. Example, 120kb.
  */
 function mission_control_get_directory_size($type = 'css') {
+  if (!variable_get('enable_directory_sizes')) {
+    return FALSE;
+  }
+
   $directory = DRUPAL_ROOT . '/' . variable_get('file_public_path', conf_path() . '/files') . '/' . $type;
   $size = 0;
 
@@ -233,6 +258,10 @@ function mission_control_get_directory_size($type = 'css') {
  *   The number of batch processes currently running.
  */
 function mission_control_get_active_batch_count() {
+  if (!variable_get('enable_batch_count')) {
+    return FALSE;
+  }
+
   $batch_count = db_select('batch')
     ->fields(NULL, array('bid'))
     ->execute()
@@ -248,6 +277,10 @@ function mission_control_get_active_batch_count() {
  *   The number of queues currently running.
  */
 function mission_control_get_active_queue_count() {
+  if (!variable_get('enable_queue_count')) {
+    return FALSE;
+  }
+
   $queue_count = db_select('queue')
     ->fields(NULL, array('item_id'))
     ->execute()
@@ -263,6 +296,10 @@ function mission_control_get_active_queue_count() {
  *   The time used on fetching cache from the database.
  */
 function mission_control_get_database_cache_time() {
+  if (!variable_get('enable_caching_output')) {
+    return FALSE;
+  }
+
   global $_mission_control_queries;
   $cache_query_time = 0;
 
@@ -292,6 +329,10 @@ function mission_control_get_database_cache_time() {
  *   The number of queries that hit the database cache.
  */
 function mission_control_get_database_cache_count() {
+  if (!variable_get('enable_caching_output')) {
+    return FALSE;
+  }
+
   global $_mission_control_queries;
   $cache_query_count = 0;
 
