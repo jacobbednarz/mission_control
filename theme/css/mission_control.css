@@ -8,13 +8,13 @@ body {
 
 #mission-control-bar {
   position: fixed;
-  bottom: 0px;
+  bottom: 0;
   width: 100%;
   overflow: visible;
   z-index: 99;
-  -webkit-box-shadow: 0px -5px 15px 0px rgba(0, 0, 0, 0.2);
-  box-shadow: 0px -5px 15px 0px rgba(0, 0, 0, 0.2);
-  height: 35px;
+  -webkit-box-shadow: 0 -5px 15px 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: 0 -5px 15px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 -5px 15px 0 rgba(0, 0, 0, 0.2);
   font-family: 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
   color: #d4d4d4;
   background: #2e3034 url('../images/bg.png') repeat;
@@ -38,11 +38,10 @@ body {
   -khtml-border-radius: 5px;
   border: 1px solid #3e4146;
   font-size: 12px;
-  margin-right: 15px;
   -moz-box-shadow: inset 0 0 10px #000;
   -webkit-box-shadow: inset 0 0 10px #000;
   box-shadow: inset 0 0 10px #000;
-  text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.9);
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.9);
 }
 
 .mission-control-deployed-hash,
@@ -52,14 +51,15 @@ body {
 }
 
 .mission-control-hostname {
-  text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.9);
+  margin-left: 17px;
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.9);
 }
 
 .mission-control-topic {
   font-size: 17px;
   font-weight: 500;
   color: #eee;
-  text-shadow: 0px 2px 2px rgba(0, 0, 0, 0.8);
+  text-shadow: 0 2px 2px rgba(0, 0, 0, 0.8);
   padding-right: 2px;
 }
 
