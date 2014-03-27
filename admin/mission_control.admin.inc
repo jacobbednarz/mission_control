@@ -32,6 +32,11 @@ function mission_control_settings() {
     '#title' => t('Page render'),
     '#group' => 'type',
   );
+  $form['cache'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Cache'),
+    '#group' => 'type',
+  );
   $form['database'] = array(
     '#type' => 'fieldset',
     '#title' => t('Database and SQL'),
@@ -80,10 +85,16 @@ function mission_control_settings() {
     '#title' => t('Show page render time'),
     '#default_value' => variable_get('enable_render_time', 0),
   );
-  $form['database']['enable_caching_output'] = array(
+  $form['cache']['enable_caching_output'] = array(
     '#type' => 'checkbox',
     '#title' => t('Display statistics for objects served from the database cache'),
     '#default_value' => variable_get('enable_caching_output', 0),
+  );
+  $form['cache']['include_additional_cache_backends'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Include details from all backend caches in the cache metrics'),
+    '#default_value' => variable_get('include_additional_cache_backends', 0),
+    '#description' => t('If you use additional backend caches such as Memcache or Redis, you will need to enable this to get accurate data'),
   );
   $form['database']['enable_sql_output'] = array(
     '#type' => 'checkbox',
