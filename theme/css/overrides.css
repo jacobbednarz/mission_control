@@ -7,5 +7,6 @@
  * Paneliser
  */
 #panels-ipe-control-container {
+  z-index: 15 !important;
   margin-bottom: 37px;
 }
