@@ -1,0 +1,11 @@
+/**
+ * This file is designed to override other module styles when the mission
+ * control module is active on a site.
+ */
+
+/**
+ * Paneliser
+ */
+#panels-ipe-control-container {
+  margin-bottom: 37px;
+}

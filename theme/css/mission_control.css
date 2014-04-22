@@ -1,3 +1,5 @@
+@import 'overrides.css';
+
 /* Prevent the bar from covering parts of the actual page */
 body {
   margin-bottom: 37px !important;
