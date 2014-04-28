@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Required install and cleanup file.
+ */
+
+/**
+ * Clean up after the module being uninstalled.
+ *
+ * Implements hook_uninstall().
+ */
+function mission_control_uninstall() {
+  // Get a list of all modules we've saved.
+  $results = db_select('variable', 'v')
+    ->fields('v', array('name'))
+    ->condition('name', 'mission_control_%', 'LIKE')
+    ->execute();
+
+  // Loop through and tell Drupal to delete each of our variables.
+  foreach ($results as $result) {
+    variable_del($result->name);
+  }
+}
