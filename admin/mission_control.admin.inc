@@ -53,12 +53,12 @@ function mission_control_settings() {
     '#group' => 'type',
   );
 
-  $form['git_information']['enable_git_data'] = array(
+  $form['git_information']['mission_control_enable_git_data'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable displaying of git information'),
     '#default_value' => variable_get('mission_control_enable_git_data', 0),
   );
-  $form['git_information']['git_path'] = array(
+  $form['git_information']['mission_control_git_path'] = array(
     '#type' => 'textfield',
     '#size' => 30,
     '#title' => t('Full path to git repository'),
@@ -68,51 +68,51 @@ function mission_control_settings() {
     '#default_value' => variable_get('mission_control_git_path', ''),
     '#states' => mission_control_depends_on('enable_git_data'),
   );
-  $form['server_information']['show_hostname'] = array(
+  $form['server_information']['mission_control_show_hostname'] = array(
     '#type' => 'checkbox',
     '#title' => t('Display hostname of the current server'),
     '#default_value' => variable_get('mission_control_show_hostname', 0),
   );
-  $form['server_information']['use_fqdn_hostname'] = array(
+  $form['server_information']['mission_control_use_fqdn_hostname'] = array(
     '#type' => 'checkbox',
     '#title' => t('Use FQDN for server hostname'),
     '#default_value' => variable_get('mission_control_use_fqdn_hostname', 0),
     '#states' => mission_control_depends_on('show_hostname'),
     '#description' => t('Instead of using just the sub domain of a host, you can use the full hostname'),
   );
-  $form['page_render']['enable_render_time'] = array(
+  $form['page_render']['mission_control_enable_render_time'] = array(
     '#type' => 'checkbox',
     '#title' => t('Show page render time'),
     '#default_value' => variable_get('mission_control_enable_render_time', 0),
   );
-  $form['cache']['enable_caching_output'] = array(
+  $form['cache']['mission_control_enable_caching_output'] = array(
     '#type' => 'checkbox',
     '#title' => t('Display statistics for objects served from the database cache'),
     '#default_value' => variable_get('mission_control_enable_caching_output', 0),
   );
-  $form['cache']['include_additional_cache_backends'] = array(
+  $form['cache']['mission_control_include_additional_cache_backends'] = array(
     '#type' => 'checkbox',
     '#title' => t('Include details from all backend caches in the cache metrics'),
     '#default_value' => variable_get('mission_control_include_additional_cache_backends', 0),
     '#description' => t('If you use additional backend caches such as Memcache or Redis, you will need to enable this to get accurate data'),
   );
-  $form['database']['enable_sql_output'] = array(
+  $form['database']['mission_control_enable_sql_output'] = array(
     '#type' => 'checkbox',
     '#title' => t('Display information around all SQL calls being executed'),
     '#default_value' => variable_get('mission_control_enable_sql_output', 0),
   );
-  $form['assets']['enable_directory_sizes'] = array(
+  $form['assets']['mission_control_enable_directory_sizes'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable displaying of directory sizes for cached CSS and JS files'),
     '#description' => t('Note: If you do not have aggregration enabled, it will just display N/A'),
     '#default_value' => variable_get('mission_control_enable_directory_sizes', 0),
   );
-  $form['background_tasks']['enable_batch_count'] = array(
+  $form['background_tasks']['mission_control_enable_batch_count'] = array(
     '#type' => 'checkbox',
     '#title' => t('Display a count of active batch processes'),
     '#default_value' => variable_get('mission_control_enable_batch_count', 0),
   );
-  $form['background_tasks']['enable_queue_count'] = array(
+  $form['background_tasks']['mission_control_enable_queue_count'] = array(
     '#type' => 'checkbox',
     '#title' => t('Show a count of active queues'),
     '#default_value' => variable_get('mission_control_enable_queue_count', 0),
