@@ -99,9 +99,11 @@ function mission_control_page_alter(&$page) {
     '#attached' => array(
       'css' => array(
         drupal_get_path('module', 'mission_control') . '/theme/css/mission_control.css',
+        drupal_get_path('module', 'mission_control') . '/theme/css/tipsy.css',
       ),
       'js' => array(
         drupal_get_path('module', 'mission_control') . '/theme/js/mission_control.js',
+        drupal_get_path('module', 'mission_control') . '/theme/js/tipsy.js',
       ),
     ),
   );
@@ -306,7 +308,7 @@ function mission_control_get_database_cache_time() {
   // Go over each query that is attached to the cache class and add it to the
   // call time.
   foreach ($_mission_control_queries as $query) {
-    if ($query['caller']['class'] == 'DrupalDatabaseCache')) {
+    if ($query['caller']['class'] == 'DrupalDatabaseCache') {
       $cache_query_time += round($query['time'], 5);
     }
   }
