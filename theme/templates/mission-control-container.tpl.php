@@ -11,7 +11,7 @@
 
   <?php if ($element['show_hostname']) : ?>
     <div id="mission-control-hostname" class="pull-left">
-      <span class="mission-control-hostname">
+      <span class="mission-control-hostname" title="<?php print render($element['host_data']); ?>">
         <?php print render($element['hostname']); ?>
       </span>
     </div>
@@ -53,7 +53,7 @@
       <span class="mission-control-topic">
         <?php print render($element['queue_count']) ;?>
       </span>
-      <span class="mission-control-unit">queues</span>
+      <span class="mission-control-unit mission-control-queue-count" title="<?php print render($element['queue_names']); ?>">queues</span>
     <?php endif; ?>
 
     <?php if ($element['enable_directory_sizes']) : ?>

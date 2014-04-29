@@ -74,6 +74,7 @@ function mission_control_page_alter(&$page) {
     // Feature flags.
     'enable_git_data' => variable_get('mission_control_enable_git_data'),
     'show_hostname' => variable_get('mission_control_show_hostname'),
+    'host_data' => mission_control_output_host_data(),
     'enable_render_time' => variable_get('mission_control_enable_render_time'),
     'use_fqdn_hostname' => variable_get('mission_control_use_fqdn_hostname'),
     'full_git_path' => variable_get('mission_control_git_path'),
@@ -83,6 +84,7 @@ function mission_control_page_alter(&$page) {
     'enable_background_task' => variable_get('mission_control_enable_background_task'),
     'enable_batch_count' => variable_get('mission_control_enable_batch_count'),
     'enable_queue_count' => variable_get('mission_control_enable_queue_count'),
+    'queue_names' => misssion_control_get_queue_names(),
     // Stats.
     'current_git_branch' => mission_control_get_current_branch(variable_get('mission_control_git_path')),
     'git_head_sha' => mission_control_get_head_sha(variable_get('mission_control_git_path')),
@@ -168,6 +170,30 @@ function mission_control_get_hostname($use_fqdn = FALSE) {
   }
 
   return ($use_fqdn) ? gethostname() : strstr(gethostname(), '.', TRUE);
+}
+
+/**
+ * Output the tite data for the host tooltip.
+ *
+ * @return string
+ *   The string with all the server information inside of it.
+ */
+function mission_control_output_host_data() {
+  if (!variable_get('mission_control_show_hostname')) {
+    return FALSE;
+  }
+
+  global $databases;
+
+  $database_host = $databases['default']['default']['host'];
+  $database_name = $databases['default']['default']['database'];
+
+  $output = "<b>IP:</b> " . $_SERVER['SERVER_ADDR'];
+  $output .= "<b><br>Your IP:</b> " . ip_address();
+  $output .= "<b><br>Hostname:</b> " . mission_control_get_hostname();
+  $output .= "<b><br>Database:</b> $database_name ($database_host)";
+
+  return $output;
 }
 
 /**
@@ -289,6 +315,32 @@ function mission_control_get_active_queue_count() {
     ->fetchAll();
 
   return count($queue_count);
+}
+
+function misssion_control_get_queue_names() {
+  if (!variable_get('mission_control_enable_queue_count')) {
+    return FALSE;
+  }
+
+  $queue_data = '';
+  $queue_names = db_select('queue', 'q')
+    ->fields('q', array('name'))
+    ->execute()
+    ->fetchAll();
+
+  // Only attempt to loop over the queue data should the count not be 0. If it
+  // is 0, let's just show a nice message letting the user know there isn't any
+  // currently running.
+  if (count($queue_names) == 0) {
+    $queue_data .= 'No active queues.';
+  }
+  else {
+    foreach ($queue_names as $queue) {
+      $queue_data .= "$queue->name<br />";
+    }
+  }
+
+  return $queue_data;
 }
 
 /**
