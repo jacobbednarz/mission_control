@@ -189,7 +189,6 @@ function mission_control_output_host_data() {
   $database_name = $databases['default']['default']['database'];
 
   $output = "<b>IP:</b> " . $_SERVER['SERVER_ADDR'];
-  $output .= "<b><br>Your IP:</b> " . ip_address();
   $output .= "<b><br>Hostname:</b> " . mission_control_get_hostname();
   $output .= "<b><br>Database:</b> $database_name ($database_host)";
 
