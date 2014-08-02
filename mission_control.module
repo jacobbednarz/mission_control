@@ -94,6 +94,7 @@ function mission_control_page_alter(&$page) {
     'sql_cache_count' => mission_control_get_database_cache_count(),
     'sql_call_count' => mission_control_get_query_count(),
     'sql_call_time' => mission_control_get_query_call_time(),
+    'sql_group_breakdown' => mission_control_get_sql_group_breakdown(),
     'css_directory_size' => mission_control_get_directory_size('css'),
     'js_directory_size' => mission_control_get_directory_size('js'),
     'batch_count' => mission_control_get_active_batch_count(),
@@ -189,7 +190,6 @@ function mission_control_output_host_data() {
   $database_name = $databases['default']['default']['database'];
 
   $output = "<b>IP:</b> " . $_SERVER['SERVER_ADDR'];
-  $output .= "<b><br>Your IP:</b> " . ip_address();
   $output .= "<b><br>Hostname:</b> " . mission_control_get_hostname();
   $output .= "<b><br>Database:</b> $database_name ($database_host)";
 
@@ -231,6 +231,55 @@ function mission_control_get_query_call_time() {
   }
 
   return round($total_call_time * 1000, 2);
+}
+
+/**
+ * Get a collated list of the SQL callers.
+ *
+ * This method gets access to all queries and groups by the caller (that can
+ * be the method or the class::method combination).
+ *
+ * @return string
+ *   Returns a string which contains the HTML markup to format the tip hover.
+ */
+function mission_control_get_sql_group_breakdown() {
+  if (!variable_get('mission_control_enable_sql_output')) {
+    return FALSE;
+  }
+
+  global $_mission_control_queries;
+  $groups = array();
+  $output = array();
+
+  foreach ($_mission_control_queries as $query) {
+    $caller = (isset($query['caller']['function'])) ? $query['caller']['function'] : NULL;
+    $class = (isset($query['caller']['class'])) ? $query['caller']['class'] : NULL;
+
+    // Should a class be making the call, let's prepend it so that we can the
+    // full picture.
+    if (!is_null($class) && !is_null($caller)) {
+      $name = "{$class}::$caller";
+    }
+    else {
+      $name = $caller;
+    }
+    
+    if (isset($groups[$name])) {
+      $groups[$name]++;
+    }
+    else {
+      $groups[$name] = 1;
+    }
+  }
+  
+  // This goes into an array so that we can nicely output the HTML. PHP's
+  // implode is smart enough to put the 'glue' between the values so we don't
+  // end up with additional line breaks.
+  foreach ($groups as $group => $group_count) {
+    $output[] = "<b>$group</b> - $group_count";
+  }
+
+  return implode('<br>', $output);
 }
 
 /**

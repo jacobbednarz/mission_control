@@ -39,7 +39,7 @@
       <?php print render($element['sql_call_time']); ?>ms
       /
       <?php print render($element['sql_call_count']); ?></span>
-      <span class="mission-control-unit">sql</span>
+      <span class="mission-control-unit mission-control-sql-count" title="<?php print render($element['sql_group_breakdown']); ?>">sql</span>
     <?php endif; ?>
 
     <?php if ($element['enable_batch_count']) : ?>
