@@ -5,7 +5,11 @@
 
       var self = this,
           index,
-          tipsySelectors = ['.mission-control-hostname', '.mission-control-queue-count'];
+          tipsySelectors = [
+            '.mission-control-hostname',
+            '.mission-control-queue-count',
+            '.mission-control-sql-count'
+          ];
 
       // Loop over all the elements that would like to use tooltips and apply
       // the correct settings.
