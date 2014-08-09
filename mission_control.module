@@ -73,6 +73,7 @@ function mission_control_page_alter(&$page) {
     '#theme' => 'mission_control_container',
     // Feature flags.
     'enable_git_data' => variable_get('mission_control_enable_git_data'),
+    'rendered_git_data' => mission_control_render_git_data(variable_get('mission_control_git_path')),
     'show_hostname' => variable_get('mission_control_show_hostname'),
     'host_data' => mission_control_output_host_data(),
     'enable_render_time' => variable_get('mission_control_enable_render_time'),
@@ -86,8 +87,6 @@ function mission_control_page_alter(&$page) {
     'enable_queue_count' => variable_get('mission_control_enable_queue_count'),
     'queue_names' => misssion_control_get_queue_names(),
     // Stats.
-    'current_git_branch' => mission_control_get_current_branch(variable_get('mission_control_git_path')),
-    'git_head_sha' => mission_control_get_head_sha(variable_get('mission_control_git_path')),
     'hostname' => (variable_get('mission_control_use_fqdn_hostname')) ? mission_control_get_hostname(TRUE) : mission_control_get_hostname(),
     'render_time' => mission_control_get_page_render_time(),
     'sql_cache_time' => mission_control_get_database_cache_time(),
@@ -124,6 +123,32 @@ function mission_control_get_page_render_time() {
   }
 
   return round(timer_read('page'));
+}
+
+/**
+ * Build the output for the git displayed data.
+ *
+ * @return string
+ *   A string containing the built markup.
+ */
+function mission_control_render_git_data($path) {
+  $current_branch = mission_control_get_current_branch($path);
+  $sha = mission_control_get_head_sha($path);
+  $output = '';
+
+  if (!empty($current_branch)) {
+    $output .= $current_branch;
+  }
+
+  if (!empty($current_branch) && !empty($sha)) {
+    $output .= ' @ ';
+  }
+
+  if (!empty($sha)) {
+    $output .= $sha;
+  }
+
+  return $output;
 }
 
 /**
@@ -263,7 +288,7 @@ function mission_control_get_sql_group_breakdown() {
     else {
       $name = $caller;
     }
-    
+
     if (isset($groups[$name])) {
       $groups[$name]++;
     }
@@ -271,7 +296,7 @@ function mission_control_get_sql_group_breakdown() {
       $groups[$name] = 1;
     }
   }
-  
+
   // This goes into an array so that we can nicely output the HTML. PHP's
   // implode is smart enough to put the 'glue' between the values so we don't
   // end up with additional line breaks.

@@ -1,11 +1,9 @@
 <div id="mission-control-bar">
-  <?php if ($element['enable_git_data']) : ?>
+  <?php if ($element['enable_git_data'] && !empty($element['rendered_git_data'])) : ?>
     <div id="mission-control-branch-details" class="pull-left">
       <span class="mission-control-deployed-branch">
-        <i class="icon-flow-branch"></i>
-        <?php print render($element['current_git_branch']); ?>
-        @
-        <?php print render($element['git_head_sha']); ?></span>
+        <?php print render($element['rendered_git_data']); ?>
+      </span>
     </div> <!-- /#branch-details -->
   <?php endif; ?>
 
