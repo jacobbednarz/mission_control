@@ -453,14 +453,12 @@ function mission_control_get_cache_count() {
     return FALSE;
   }
 
+  global $_mission_control_queries;
   $output = array();
   $cache_query_count = 0;
 
-  global $_mission_control_queries;
-
   if (module_exists('memcache')) {
     global $_memcache_statistics;
-    $output['memcache'] = count($_memcache_statistics);
     $cache_query_count += count($_memcache_statistics);
   }
 
