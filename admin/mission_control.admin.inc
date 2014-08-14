@@ -90,11 +90,11 @@ function mission_control_settings() {
     '#title' => t('Display statistics for objects served from the database cache'),
     '#default_value' => variable_get('mission_control_enable_caching_output', 0),
   );
-  $form['cache']['mission_control_include_additional_cache_backends'] = array(
+  $form['cache']['mission_control_include_memcache_cache_backends'] = array(
     '#type' => 'checkbox',
-    '#title' => t('Include details from all backend caches in the cache metrics'),
-    '#default_value' => variable_get('mission_control_include_additional_cache_backends', 0),
-    '#description' => t('If you use additional backend caches such as Memcache or Redis, you will need to enable this to get accurate data'),
+    '#title' => t('Include details from memcache backends in the cache metrics'),
+    '#default_value' => variable_get('mission_control_include_memcache_cache_backends', 0),
+    '#description' => t('If you use an additional memcache backend for caching, you will need to enable this to get accurate data'),
   );
   $form['database']['mission_control_enable_sql_output'] = array(
     '#type' => 'checkbox',

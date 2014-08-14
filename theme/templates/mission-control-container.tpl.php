@@ -25,11 +25,9 @@
 
     <?php if ($element['enable_caching_output']) : ?>
       <span class="mission-control-topic">
-        <?php print render($element['sql_cache_time']); ?>ms
-        /
-        <?php print render($element['sql_cache_count']); ?>
+        <?php print render($element['cache_count']); ?>
       </span>
-      <span class="mission-control-unit">cache</span>
+      <span class="mission-control-unit mission-control-cache-breakdown" title="<?php print render($element['cache_count_output']); ?>">cache</span>
     <?php endif; ?>
 
     <?php if ($element['enable_sql_output']) : ?>

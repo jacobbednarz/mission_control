@@ -89,8 +89,8 @@ function mission_control_page_alter(&$page) {
     // Stats.
     'hostname' => (variable_get('mission_control_use_fqdn_hostname')) ? mission_control_get_hostname(TRUE) : mission_control_get_hostname(),
     'render_time' => mission_control_get_page_render_time(),
-    'sql_cache_time' => mission_control_get_database_cache_time(),
-    'sql_cache_count' => mission_control_get_database_cache_count(),
+    'cache_count' => mission_control_get_cache_count(),
+    'cache_count_output' => mission_control_get_cache_output(),
     'sql_call_count' => mission_control_get_query_count(),
     'sql_call_time' => mission_control_get_query_call_time(),
     'sql_group_breakdown' => mission_control_get_sql_group_breakdown(),
@@ -443,18 +443,24 @@ function mission_control_get_database_cache_time() {
 }
 
 /**
- * Get a count of the SQL queries that were serving from cache.
+ * Get a count of the queries that were serving from cache.
  *
  * @return int
  *   The number of queries that hit the database cache.
  */
-function mission_control_get_database_cache_count() {
+function mission_control_get_cache_count() {
   if (!variable_get('mission_control_enable_caching_output')) {
     return FALSE;
   }
 
   global $_mission_control_queries;
+  $output = array();
   $cache_query_count = 0;
+
+  if (module_exists('memcache')) {
+    global $_memcache_statistics;
+    $cache_query_count += count($_memcache_statistics);
+  }
 
   // Loop over every query but only pull out the ones that are called via the
   // DrupalDatabaseCache. This means we are attempting to serve from the cache.
@@ -465,6 +471,77 @@ function mission_control_get_database_cache_count() {
   }
 
   return $cache_query_count;
+}
+
+/**
+ * Output the breakdown of the cache backends.
+ */
+function mission_control_get_cache_output() {
+  global $_mission_control_queries;
+  global $_memcache_statistics;
+  $cache_output = array();
+  $database_cache_output = array();
+
+  // Should the memcache module be enabled and the cache backend is actually
+  // collecting data, let's presume that memcache is ready to roll.
+  if (module_exists('memcache') && !empty($_memcache_statistics)) {
+    $memcache_output = array();
+    $memcache_bin_output = array();
+
+    foreach ($_memcache_statistics as $mstat) {
+      $type = isset($mstat[0]) ? strtoupper($mstat[0]) : '';
+      $bin = isset($mstat[1]) ? $mstat[1] : '';
+      $display_name = "{$type} {$bin}";
+
+      if (!empty($memcache_bin_output[$display_name])) {
+        $memcache_bin_output[$display_name]++;
+      }
+      else {
+        $memcache_bin_output[$display_name] = 1;
+      }
+    }
+
+    foreach ($memcache_bin_output as $name => $call_count) {
+      $cache_output[] = "<strong>Memcache: $name</strong> - $call_count";
+    }
+  }
+
+  // Database caching information.
+  foreach ($_mission_control_queries as $db_cache_query) {
+    if ($db_cache_query['caller']['class'] !== 'DrupalDatabaseCache') {
+      continue;
+    }
+
+    switch ($db_cache_query['caller']['function']) {
+      case 'getMultiple':
+        $type = 'GETMULTI';
+        break;
+
+      default:
+        strtoupper($type);
+        break;
+    }
+
+    preg_match('/cache([A-Za-z_]?)+/', $db_cache_query['query'], $bin);
+    $display_name = "{$type} {$bin[0]}";
+
+    if (empty($database_cache_output[$display_name])) {
+      $database_cache_output[$display_name] = 1;
+    }
+    else {
+      $database_cache_output[$display_name]++;
+    }
+  }
+
+  // Let's play it on the safe side here and be sure that we have something
+  // before doing anything with it.
+  if (!empty($database_cache_output)) {
+    foreach ($database_cache_output as $name => $call_count) {
+      $cache_output[] = "<strong>Database: $name</strong> - $call_count";
+    }
+  }
+
+  return implode('<br />', $cache_output);
 }
 
 /**
