@@ -35,7 +35,9 @@
       <?php print render($element['sql_call_time']); ?>ms
       /
       <?php print render($element['sql_call_count']); ?></span>
-      <span class="mission-control-unit mission-control-sql-count" title="<?php print render($element['sql_group_breakdown']); ?>">sql</span>
+      <span class="mission-control-unit mission-control-sql-count" title="<?php print render($element['sql_group_breakdown']); ?>">
+        <a href="#mission-control-show-sql-breakdown-table">sql</a>
+      </span>
     <?php endif; ?>
 
     <?php if ($element['enable_batch_count']) : ?>
@@ -66,3 +68,9 @@
     </div>
   </div> <!-- /#mission-control-stats -->
 </div>
+
+<?php if ($element['enable_sql_output']) : ?>
+  <div style="display:none" id="mission-control-show-sql-breakdown-table">
+    <?php print render($element['sql_query_breakdown_table']); ?>
+  </div>
+<?php endif; ?>

@@ -94,6 +94,7 @@ function mission_control_page_alter(&$page) {
     'sql_call_count' => mission_control_get_query_count(),
     'sql_call_time' => mission_control_get_query_call_time(),
     'sql_group_breakdown' => mission_control_get_sql_group_breakdown(),
+    'sql_query_breakdown_table' => mission_control_rendered_sql_query_breakdown_table(),
     'css_directory_size' => mission_control_get_directory_size('css'),
     'js_directory_size' => mission_control_get_directory_size('js'),
     'batch_count' => mission_control_get_active_batch_count(),
@@ -106,6 +107,7 @@ function mission_control_page_alter(&$page) {
       'js' => array(
         drupal_get_path('module', 'mission_control') . '/theme/js/mission_control.js',
         drupal_get_path('module', 'mission_control') . '/theme/js/tipsy.js',
+        drupal_get_path('module', 'mission_control') . '/theme/js/modal.js',
       ),
     ),
   );
@@ -305,6 +307,50 @@ function mission_control_get_sql_group_breakdown() {
   }
 
   return implode('<br>', $output);
+}
+
+/**
+ * Output a breakdown of the SQL commands for a request.
+ */
+function mission_control_rendered_sql_query_breakdown_table() {
+  if (!variable_get('mission_control_enable_sql_output')) {
+    return FALSE;
+  }
+
+  global $_mission_control_queries;
+  $output = '<table>';
+
+  foreach ($_mission_control_queries as $query) {
+    if (!empty($query['caller']['class'])) {
+      $caller = $query['caller']['class'] . '::' . $query['caller']['function'];
+    }
+    else {
+      $caller = $query['caller']['function'];
+    }
+
+    // Apply some formatting rules should the query time be over the desired
+    // 'slow query' threshold.
+    $query_time = round(round($query['time'], 5) * 1000, 2);
+    $slow_sql_threshold = variable_get('mission_control_slow_sql_threshold');
+    if ($query_time > $slow_sql_threshold && $slow_sql_threshold !== '0') {
+      $query_time = '<span class="mission-control-slow-query">' . $query_time . 'ms</span>';
+    }
+    else {
+      $query_time = $query_time . 'ms';
+    }
+
+    // Most of the time, we are only interested in the actual values being
+    // queried on so let's swap them out for the placeholders.
+    $query_replaced = strtr($query['query'], $query['args']);
+    $output .= '<tr>';
+    $output .= '<td width="50px">' . $query_time . '</td>';
+    $output .= '<td>' . $caller . '</td>';
+    $output .= '<td width="650">' . $query_replaced . '</td>';
+  }
+
+  $output .= '</table>';
+
+  return $output;
 }
 
 /**
