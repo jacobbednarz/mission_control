@@ -6,7 +6,7 @@ modules do.
 
 ### Features
 
-![screenshot](screenshot.png)
+![screenshot](images/screenshot.png)
 
 - Git integration for fetching the current branch and HEAD SHA. (1 + 2)
 - Show the current host where the application is being executed from. (3)
@@ -16,6 +16,19 @@ modules do.
 - Number of batch processes currently running. (7)
 - Total count of running queues. (8)
 - Size of CSS and JS files being served to the end user. (9 + 10)
+
+#### Metric insights
+
+To get a high level overview, you can hover a metric name (such as 'cache')
+and it will give you a quick breakdown. In most cases it is broken up as `[call
+type] - [call count]`.
+
+![quick-view](images/stats-quick-view.png)
+
+Should you need a further breakdown of the metrics provided, click on the
+topic name and a modal will appear with more information.
+
+![sql-breakdown](images/sql-breakdown.png)
 
 ### Installation
 
