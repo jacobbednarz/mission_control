@@ -101,6 +101,25 @@ function mission_control_settings() {
     '#title' => t('Display information around all SQL calls being executed'),
     '#default_value' => variable_get('mission_control_enable_sql_output', 0),
   );
+  $form['database']['mission_control_slow_sql_threshold'] = array(
+    '#type' => 'select',
+    '#title' => t('Slow query threshold'),
+    '#description' => t('Time (in milliseconds) that you would like to flag as a slow SQL query.'),
+    '#options' => array(
+      '0' => '0 (Disable)',
+      '5' => 5,
+      '10' => 10,
+      '15' => 15,
+      '20' => 20,
+      '25' => 25,
+      '30' => 30,
+      '35' => 35,
+      '40' => 40,
+      '45' => 45,
+      '50' => 50,
+    ),
+    '#default_value' => variable_get('mission_control_slow_sql_threshold'),
+  );
   $form['assets']['mission_control_enable_directory_sizes'] = array(
     '#type' => 'checkbox',
     '#title' => t('Enable displaying of directory sizes for cached CSS and JS files'),
