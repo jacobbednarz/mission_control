@@ -3,6 +3,8 @@
     attach: function() {
       missionControl = window.missionControl || {};
 
+      $('#mission-control-bar a').leanModal();
+
       var self = this,
           index,
           tipsySelectors = [

@@ -66,8 +66,77 @@ body {
 }
 
 .mission-control-unit {
+  padding-right: 25px;
+}
+
+.mission-control-unit,
+.mission-control-unit a {
   font-size: 13px;
   color: rgba(255, 255, 255, 0.5);
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
-  padding-right: 25px;
+}
+
+.mission-control-unit a:hover {
+  text-decoration: none;
+  color: inherit;
+}
+
+.mission-control-modal-overlay {
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: #000;
+  display: none;
+}
+
+hr {
+  height: 1px;
+  border: none;
+  color: #ddd;
+  background-color: #ddd;
+  margin: 7px 0;
+}
+
+.prevent-body-overflow {
+  overflow: hidden;
+}
+
+.mission-control-slow-query {
+  color: red;
+}
+
+#mission-control-show-sql-breakdown-table {
+  padding: 10px 30px;
+  display: none;
+  background: #fff;
+  width: 70%;
+  height: 500px;
+  font-size: 12px;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  -webkit-box-shadow: 0 0 4px rgba(0,0,0,0.7);
+  -moz-box-shadow: 0 0 4px rgba(0,0,0,0.7);
+  box-shadow: 0 0 4px rgba(0,0,0,0.7);
+  border-radius: 5px;
+  overflow-y: scroll;
+  word-break: break-all;
+}
+
+#mission-control-show-sql-breakdown-table table {
+  font-family: "Monaco", "Courier New", Courier, monospace;
+  color: #888;
+  font-size: 11px;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#mission-control-show-sql-breakdown-table tr,
+#mission-control-show-sql-breakdown-table td {
+  vertical-align: top;
+  background-color: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: 9px;
 }
