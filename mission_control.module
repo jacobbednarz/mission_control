@@ -343,9 +343,9 @@ function mission_control_rendered_sql_query_breakdown_table() {
     // queried on so let's swap them out for the placeholders.
     $query_replaced = strtr($query['query'], $query['args']);
     $output .= '<tr>';
-    $output .= '<td width="50px">' . $query_time . '</td>';
-    $output .= '<td>' . $caller . '</td>';
-    $output .= '<td width="650">' . $query_replaced . '</td>';
+    $output .= '<td width="50">' . $query_time . '</td>';
+    $output .= '<td width="260">' . $caller . '</td>';
+    $output .= '<td>' . $query_replaced . '</td>';
   }
 
   $output .= '</table>';
