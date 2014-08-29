@@ -290,7 +290,7 @@ function mission_control_get_sql_group_breakdown() {
 
     // Should a class be making the call, let's prepend it so that we can the
     // full picture.
-    if (!is_null($class) && !is_null($caller)) {
+    if (!empty($class) && !empty($caller)) {
       $name = "{$class}::$caller";
     }
     else {
@@ -325,6 +325,11 @@ function mission_control_rendered_sql_query_breakdown_table() {
 
   global $_mission_control_queries;
   $output = '<table>';
+  $output .= '<tr>';
+  $output .= '<th>Time</th>';
+  $output .= '<th>Caller</th>';
+  $output .= '<th>Query</th>';
+  $output .= '</tr>';
 
   foreach ($_mission_control_queries as $query) {
     if (!empty($query['caller']['class'])) {
