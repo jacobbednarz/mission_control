@@ -697,3 +697,50 @@ function mission_control_depends_on($parent, $type = 'checkbox', $value = '') {
     );
   }
 }
+
+/**
+ * Show a relative date based on a provided unix timestamp.
+ *
+ * @param int $time
+ *   A unix timestamp for comparison.
+ *
+ * @return
+ *   A string of the relative timestamp.
+ */
+function _mission_control_time_ago($time) {
+  $periods = array(
+    'second',
+    'minute',
+    'hour',
+    'day',
+    'week',
+    'month',
+    'year',
+    'decade'
+  );
+  $lengths = array(
+    '60',
+    '60',
+    '24',
+    '7',
+    '4.35',
+    '12',
+    '10'
+  );
+
+  $now = time();
+  $difference = $now - $time;
+  $tense = 'ago';
+
+  for ($i = 0; $difference >= $lengths[$i] && $i < count($lengths) - 1; $i++) {
+    $difference /= $lengths[$i];
+  }
+
+  $difference = round($difference);
+
+  if ($difference != 1) {
+     $periods[$i] .= 's';
+  }
+
+  return "$difference $periods[$i] $tense";
+}
