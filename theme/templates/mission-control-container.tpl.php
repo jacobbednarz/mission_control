@@ -44,7 +44,7 @@
       <span class="mission-control-topic">
         <?php print render($element['batch_count']) ;?>
       </span>
-      <span class="mission-control-unit">batch tasks</span>
+      <span class="mission-control-batch-output mission-control-unit" title="<?php print render($element['batch_output']); ?>">batch tasks</span>
     <?php endif; ?>
 
     <?php if ($element['enable_queue_count']) : ?>

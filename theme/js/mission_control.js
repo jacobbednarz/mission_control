@@ -11,7 +11,8 @@
             '.mission-control-hostname',
             '.mission-control-queue-count',
             '.mission-control-sql-count',
-            '.mission-control-cache-breakdown'
+            '.mission-control-cache-breakdown',
+            '.mission-control-batch-output'
           ];
 
       // Loop over all the elements that would like to use tooltips and apply

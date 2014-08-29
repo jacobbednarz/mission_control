@@ -87,7 +87,7 @@ function mission_control_page_alter(&$page) {
     'enable_queue_count' => variable_get('mission_control_enable_queue_count'),
     'queue_names' => misssion_control_get_queue_names(),
     // Stats.
-    'hostname' => (variable_get('mission_control_use_fqdn_hostname')) ? mission_control_get_hostname(TRUE) : mission_control_get_hostname(),
+    'hostname' => mission_control_get_hostname(),
     'render_time' => mission_control_get_page_render_time(),
     'cache_count' => mission_control_get_cache_count(),
     'cache_count_output' => mission_control_get_cache_output(),
@@ -98,6 +98,7 @@ function mission_control_page_alter(&$page) {
     'css_directory_size' => mission_control_get_directory_size('css'),
     'js_directory_size' => mission_control_get_directory_size('js'),
     'batch_count' => mission_control_get_active_batch_count(),
+    'batch_output' => mission_control_get_active_batch_output(),
     'queue_count' => mission_control_get_active_queue_count(),
     '#attached' => array(
       'css' => array(
@@ -184,20 +185,26 @@ function mission_control_get_head_sha($path) {
 /**
  * Get the hostname of the machine the code is running on.
  *
- * @param bool $use_fqdn
- *   Whether to trim the current hostname to the first period.
- *
  * @return string
  *   The name of the current machine. If $use_fqdn is FALSE, the hostname will
  *   be trimmed to the first period. Example, web-123.subdomain.com will become
  *   web-123.
  */
-function mission_control_get_hostname($use_fqdn = FALSE) {
+function mission_control_get_hostname() {
   if (!variable_get('mission_control_show_hostname')) {
     return FALSE;
   }
 
-  return ($use_fqdn) ? gethostname() : strstr(gethostname(), '.', TRUE);
+  // Should we wish to display the FQDN, set it to the whole hostname otherwise
+  // trim it to the first subdomain.
+  if (variable_get('mission_control_use_fqdn_hostname')) {
+    $hostname = gethostname();
+  }
+  else {
+    $hostname = strstr(gethostname(), '.', TRUE);
+  }
+
+  return $hostname;
 }
 
 /**
@@ -216,7 +223,7 @@ function mission_control_output_host_data() {
   $database_host = $databases['default']['default']['host'];
   $database_name = $databases['default']['default']['database'];
 
-  $output = "<b>IP:</b> " . $_SERVER['SERVER_ADDR'];
+  $output = "<b>IP:</b> " . ip_address();
   $output .= "<b><br>Hostname:</b> " . mission_control_get_hostname();
   $output .= "<b><br>Database:</b> $database_name ($database_host)";
 
@@ -284,7 +291,7 @@ function mission_control_get_sql_group_breakdown() {
 
     // Should a class be making the call, let's prepend it so that we can the
     // full picture.
-    if (!is_null($class) && !is_null($caller)) {
+    if (!empty($class) && !empty($caller)) {
       $name = "{$class}::$caller";
     }
     else {
@@ -319,6 +326,11 @@ function mission_control_rendered_sql_query_breakdown_table() {
 
   global $_mission_control_queries;
   $output = '<table>';
+  $output .= '<tr>';
+  $output .= '<th>Time</th>';
+  $output .= '<th>Caller</th>';
+  $output .= '<th>Query</th>';
+  $output .= '</tr>';
 
   foreach ($_mission_control_queries as $query) {
     if (!empty($query['caller']['class'])) {
@@ -400,6 +412,21 @@ function mission_control_get_directory_size($type = 'css') {
 }
 
 /**
+ * Get all the available batch processes and their data.
+ *
+ * @return array
+ *   The array of information for the batches.
+ */
+function _mission_control_get_batches() {
+  $batches = db_select('batch', 'b')
+    ->fields('b', array('bid', 'batch'))
+    ->execute()
+    ->fetchAll();
+
+  return $batches;
+}
+
+/**
  * Retrieve a count of the active batch processes.
  *
  * @return int
@@ -410,12 +437,68 @@ function mission_control_get_active_batch_count() {
     return FALSE;
   }
 
-  $batch_count = db_select('batch', 'b')
-    ->fields('b', array('bid'))
+  return count(_mission_control_get_batches());
+}
+
+/**
+ * Output the high level overview of the batch data.
+ */
+function mission_control_get_active_batch_output() {
+  if (!variable_get('mission_control_enable_batch_count')) {
+    return FALSE;
+  }
+
+  $batch_items = _mission_control_get_batches();
+
+  if (empty($batch_items)) {
+    return 'No active batch processes.';
+  }
+
+  $batch_info = array();
+
+  foreach ($batch_items as $batch_row) {
+    $batch_data = unserialize($batch_row->batch);
+    $id = $batch_data['id'];
+    $current = $batch_data['sets'][0]['count'];
+    $total = $batch_data['sets'][0]['total'];
+    $start_time = $batch_data['sets'][0]['start'];
+
+    if (!empty($start_time)) {
+      $time_ago = _mission_control_time_ago($start_time);
+      $queued_info = "started $time_ago";
+    }
+    else {
+      $queued_info = 'no start time defined';
+    }
+
+    // If the current state of the batch matches the total, we have completed
+    // all the sets.
+    if ($current == $total) {
+      $progress = 'Complete';
+    }
+    else {
+      $progress = "Progress {$current}/{$total}";
+    }
+
+    $batch_info[] = "{$id} ({$queued_info}) - $progress";
+  }
+
+  return implode('<br />', $batch_info);
+}
+
+/**
+ * Return all the available queue data.
+ *
+ * @return
+ *   An array of queues and their data.
+ */
+function _mission_control_get_queues() {
+  $queues = db_select('queue', 'q')
+    ->fields('q', array('name', 'item_id'))
     ->execute()
     ->fetchAll();
 
-  return count($batch_count);
+  return $queues;
 }
 
 /**
@@ -429,12 +512,7 @@ function mission_control_get_active_queue_count() {
     return FALSE;
   }
 
-  $queue_count = db_select('queue', 'q')
-    ->fields('q', array('item_id'))
-    ->execute()
-    ->fetchAll();
-
-  return count($queue_count);
+  return count(_mission_control_get_queues());
 }
 
 function misssion_control_get_queue_names() {
@@ -442,25 +520,22 @@ function misssion_control_get_queue_names() {
     return FALSE;
   }
 
-  $queue_data = '';
-  $queue_names = db_select('queue', 'q')
-    ->fields('q', array('name'))
-    ->execute()
-    ->fetchAll();
+  $queue_names = _mission_control_get_queues();
 
-  // Only attempt to loop over the queue data should the count not be 0. If it
-  // is 0, let's just show a nice message letting the user know there isn't any
+  // Only attempt to loop over the queue data should the count not be empty. If
+  // it is, let's just show a nice message letting the user know there isn't any
   // currently running.
-  if (count($queue_names) == 0) {
-    $queue_data .= 'No active queues.';
-  }
-  else {
-    foreach ($queue_names as $queue) {
-      $queue_data .= "$queue->name<br />";
-    }
+  if (empty($queue_names)) {
+    return 'No active queues.';
   }
 
-  return $queue_data;
+  $queue_data = '';
+
+  foreach ($queue_names as $queue) {
+    $queue_data .= $queue->name;
+  }
+
+  return implode('<br />', $queue_data);
 }
 
 /**
@@ -548,7 +623,7 @@ function mission_control_get_cache_output() {
     }
 
     foreach ($memcache_bin_output as $name => $call_count) {
-      $cache_output[] = "<strong>Memcache: $name</strong> - $call_count";
+      $cache_output[] = "<strong>Memcache:</strong> $name - $call_count";
     }
   }
 
@@ -583,7 +658,7 @@ function mission_control_get_cache_output() {
   // before doing anything with it.
   if (!empty($database_cache_output)) {
     foreach ($database_cache_output as $name => $call_count) {
-      $cache_output[] = "<strong>Database: $name</strong> - $call_count";
+      $cache_output[] = "<strong>Database:</strong> $name - $call_count";
     }
   }
 
@@ -621,4 +696,51 @@ function mission_control_depends_on($parent, $type = 'checkbox', $value = '') {
       ),
     );
   }
+}
+
+/**
+ * Show a relative date based on a provided unix timestamp.
+ *
+ * @param int $time
+ *   A unix timestamp for comparison.
+ *
+ * @return
+ *   A string of the relative timestamp.
+ */
+function _mission_control_time_ago($time) {
+  $periods = array(
+    'second',
+    'minute',
+    'hour',
+    'day',
+    'week',
+    'month',
+    'year',
+    'decade'
+  );
+  $lengths = array(
+    '60',
+    '60',
+    '24',
+    '7',
+    '4.35',
+    '12',
+    '10'
+  );
+
+  $now = time();
+  $difference = $now - $time;
+  $tense = 'ago';
+
+  for ($i = 0; $difference >= $lengths[$i] && $i < count($lengths) - 1; $i++) {
+    $difference /= $lengths[$i];
+  }
+
+  $difference = round($difference);
+
+  if ($difference != 1) {
+     $periods[$i] .= 's';
+  }
+
+  return "$difference $periods[$i] $tense";
 }
