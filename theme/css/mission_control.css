@@ -134,6 +134,14 @@ hr {
   width: 100%;
 }
 
+#mission-control-show-sql-breakdown-table th {
+  color: #888;
+  font-weight: bold;
+  font-size: 11px;
+  text-transform: none;
+}
+
+#mission-control-show-sql-breakdown-table th,
 #mission-control-show-sql-breakdown-table tr,
 #mission-control-show-sql-breakdown-table td {
   vertical-align: top;
