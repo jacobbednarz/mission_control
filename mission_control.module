@@ -87,7 +87,7 @@ function mission_control_page_alter(&$page) {
     'enable_queue_count' => variable_get('mission_control_enable_queue_count'),
     'queue_names' => misssion_control_get_queue_names(),
     // Stats.
-    'hostname' => (variable_get('mission_control_use_fqdn_hostname')) ? mission_control_get_hostname(TRUE) : mission_control_get_hostname(),
+    'hostname' => mission_control_get_hostname(),
     'render_time' => mission_control_get_page_render_time(),
     'cache_count' => mission_control_get_cache_count(),
     'cache_count_output' => mission_control_get_cache_output(),
@@ -184,20 +184,26 @@ function mission_control_get_head_sha($path) {
 /**
  * Get the hostname of the machine the code is running on.
  *
- * @param bool $use_fqdn
- *   Whether to trim the current hostname to the first period.
- *
  * @return string
  *   The name of the current machine. If $use_fqdn is FALSE, the hostname will
  *   be trimmed to the first period. Example, web-123.subdomain.com will become
  *   web-123.
  */
-function mission_control_get_hostname($use_fqdn = FALSE) {
+function mission_control_get_hostname() {
   if (!variable_get('mission_control_show_hostname')) {
     return FALSE;
   }
 
-  return ($use_fqdn) ? gethostname() : strstr(gethostname(), '.', TRUE);
+  // Should we wish to display the FQDN, set it to the whole hostname otherwise
+  // trim it to the first subdomain.
+  if (variable_get('mission_control_use_fqdn_hostname')) {
+    $hostname = gethostname();
+  }
+  else {
+    $hostname = strstr(gethostname(), '.', TRUE);
+  }
+
+  return $hostname;
 }
 
 /**
