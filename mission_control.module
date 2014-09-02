@@ -85,7 +85,6 @@ function mission_control_page_alter(&$page) {
     'enable_background_task' => variable_get('mission_control_enable_background_task'),
     'enable_batch_count' => variable_get('mission_control_enable_batch_count'),
     'enable_queue_count' => variable_get('mission_control_enable_queue_count'),
-    'queue_names' => misssion_control_get_queue_names(),
     // Stats.
     'hostname' => mission_control_get_hostname(),
     'render_time' => mission_control_get_page_render_time(),
@@ -513,29 +512,6 @@ function mission_control_get_active_queue_count() {
   }
 
   return count(_mission_control_get_queues());
-}
-
-function misssion_control_get_queue_names() {
-  if (!variable_get('mission_control_enable_queue_count')) {
-    return FALSE;
-  }
-
-  $queue_names = _mission_control_get_queues();
-
-  // Only attempt to loop over the queue data should the count not be empty. If
-  // it is, let's just show a nice message letting the user know there isn't any
-  // currently running.
-  if (empty($queue_names)) {
-    return 'No active queues.';
-  }
-
-  $queue_data = '';
-
-  foreach ($queue_names as $queue) {
-    $queue_data .= $queue->name;
-  }
-
-  return implode('<br />', $queue_data);
 }
 
 /**

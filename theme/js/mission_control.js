@@ -9,7 +9,6 @@
           index,
           tipsySelectors = [
             '.mission-control-hostname',
-            '.mission-control-queue-count',
             '.mission-control-sql-count',
             '.mission-control-cache-breakdown',
             '.mission-control-batch-output'

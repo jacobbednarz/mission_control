@@ -51,7 +51,7 @@
       <span class="mission-control-topic">
         <?php print render($element['queue_count']) ;?>
       </span>
-      <span class="mission-control-unit mission-control-queue-count" title="<?php print render($element['queue_names']); ?>">queues</span>
+      <span class="mission-control-unit mission-control-queue-count">queues</span>
     <?php endif; ?>
 
     <?php if ($element['enable_directory_sizes']) : ?>
