@@ -77,7 +77,10 @@ body {
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.8);
 }
 
-.mission-control-unit a:hover {
+.mission-control-unit a:hover,
+.mission-control-unit a:active,
+.mission-control-unit a:visited,
+.mission-control-unit a:focus {
   text-decoration: none;
   color: inherit;
 }
