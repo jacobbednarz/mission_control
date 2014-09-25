@@ -200,7 +200,8 @@ function mission_control_get_hostname() {
     $hostname = gethostname();
   }
   else {
-    $hostname = strstr(gethostname(), '.', TRUE);
+    $hostname_parts = explode('.', gethostname());
+    $hostname = array_shift($hostname_parts);
   }
 
   return $hostname;
